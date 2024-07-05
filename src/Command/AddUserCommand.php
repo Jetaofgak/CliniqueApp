@@ -1,4 +1,5 @@
 <?php
+/*
 
 namespace App\Command;
 
@@ -58,4 +59,8 @@ class AddUserCommand extends Command
 
         return Command::SUCCESS;
     }
-}
+    
+    
+
+}*/
+?>
