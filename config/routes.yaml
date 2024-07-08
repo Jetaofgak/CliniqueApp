@@ -1,7 +1,6 @@
+# Attribute-based routing for controllers
 controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+    resource: '../src/Controller/'
     type: attribute
 
 # Login route
@@ -13,6 +12,8 @@ app_login:
 app_homepage:
     path: /
     controller: App\Controller\HomepageController::index
+
+# Rooms routes
 app_rooms:
     path: /rooms
     controller: App\Controller\RoomController::index
@@ -20,6 +21,7 @@ app_rooms:
 app_room_add:
     path: /rooms/add
     controller: App\Controller\RoomController::add
+
 room_edit:
     path: /room/{name}/edit
     controller: App\Controller\RoomController::edit
@@ -28,3 +30,23 @@ room_delete:
     path: /room/{name}/delete
     controller: App\Controller\RoomController::delete
     methods: POST
+
+# Schedule routes
+schedule_index:
+    path: /schedule
+    controller: App\Controller\ScheduleController::index
+
+schedule_new:
+    path: /schedule/new
+    controller: App\Controller\ScheduleController::new
+
+schedule_edit:
+    path: /schedule/{id}/edit
+    controller: App\Controller\ScheduleController::edit
+
+schedule_delete:
+    path: /schedule/{id}/delete
+    controller: App\Controller\ScheduleController::delete
+    methods: POST
+
+
