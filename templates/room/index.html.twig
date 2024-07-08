@@ -1,20 +1,96 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello RoomController!{% endblock %}
+{% block title %}Room List{% endblock %}
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .table-container {
+        margin-top: 100px; /* Adjust this value to create enough space */
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .add-room-link {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .add-room-link:hover {
+        background-color: #45a049;
+    }
+
+    .action-buttons a {
+        margin-right: 10px;
+    }
+
+    .action-buttons form {
+        display: inline;
+    }
 </style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+<div class="table-container">
+    <h1>Room List</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/Projet/CliniqueApp/src/Controller/RoomController.php</code></li>
-        <li>Your template at <code>C:/xampp/Projet/CliniqueApp/templates/room/index.html.twig</code></li>
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+                <tr>
+                    <td>{{ room.id }}</td>
+                    <td>{{ room.name }}</td>
+                    <td>{{ room.capacity }}</td>
+                    <td>{{ room.status }}</td>
+                    <td class="action-buttons">
+                        <a href="{{ path('room_edit', {name: room.name}) }}">Edit</a>
+                        <form method="post" action="{{ path('room_delete', {name: room.name}) }}" onsubmit="return confirm('Are you sure you want to delete this room?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ room.id) }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('room_new') }}" class="add-room-link">Add New Room</a>
 </div>
 {% endblock %}
+
+

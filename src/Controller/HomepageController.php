@@ -8,7 +8,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class HomepageController extends AbstractController
 {
-    #[Route('http://127.0.0.1:8000', name: 'app_homepage')]
+    
+    #[Route('/', name: 'homepage')]
     public function index(): Response
     {
         return $this->render('homepage/index.html.twig', [
