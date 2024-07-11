@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\ScheduleRepository;
 
 class RoomController extends AbstractController
 {
@@ -78,5 +79,21 @@ class RoomController extends AbstractController
         }
 
         return $this->redirectToRoute('room_index');
+    }
+    #[Route('/room/{name}/schedule', name: 'room_schedule')]
+    public function schedule(string $name, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager): Response
+    {
+        $room = $entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
+
+        if (!$room) {
+            throw $this->createNotFoundException('No room found for name ' . $name);
+        }
+
+        $schedules = $scheduleRepository->findBy(['room' => $room]);
+
+        return $this->render('room/schedule.html.twig', [
+            'room' => $room,
+            'schedules' => $schedules,
+        ]);
     }
 }

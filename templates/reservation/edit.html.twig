@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Reservation{% endblock %}
+
+{% block body %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-container form div {
+        margin-bottom: 10px;
+    }
+
+    .form-container button {
+        align-self: flex-end;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="form-container">
+    <h1>Edit Reservation</h1>
+    {{ form_start(form) }}
+        {{ form_row(form.starttime) }}
+        {{ form_row(form.endtime) }}
+        {{ form_row(form.notes) }}
+        {{ form_row(form.schedule) }}
+        <button type="submit">Save changes</button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
