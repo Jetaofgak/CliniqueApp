@@ -1,26 +1,73 @@
 <?php
 
 // src/Controller/ReservationController.php
+
 namespace App\Controller;
 
 use App\Entity\Reservation;
-use App\Entity\Schedule;
 use App\Form\ReservationFormType;
+use App\Form\ReservationSearchType;
+use App\Repository\RoomRepository;
 use App\Repository\ScheduleRepository;
-use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-
 
 #[Route('/reservation')]
 class ReservationController extends AbstractController
 {
+    #[Route('/search', name: 'reservation_search', methods: ['GET', 'POST'])]
+    public function search(Request $request, RoomRepository $roomRepository, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(ReservationSearchType::class);
+        $form->handleRequest($request);
+
+        $availableRooms = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $startTime = $data['starttime'];
+            $endTime = $data['endtime'];
+
+            $rooms = $roomRepository->findAll();
+
+            foreach ($rooms as $room) {
+                $schedules = $room->getSchedules();
+                $isAvailable = true;
+
+                foreach ($schedules as $schedule) {
+                    $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
+
+                    foreach ($existingReservations as $existingReservation) {
+                        if (
+                            ($startTime < $existingReservation->getEndtime() && $endTime > $existingReservation->getStarttime())
+                        ) {
+                            $isAvailable = false;
+                            break;
+                        }
+                    }
+
+                    if (!$isAvailable) {
+                        break;
+                    }
+                }
+
+                if ($isAvailable) {
+                    $availableRooms[] = $room;
+                }
+            }
+        }
+
+        return $this->render('reservation/search.html.twig', [
+            'form' => $form->createView(),
+            'available_rooms' => $availableRooms,
+        ]);
+    }
+
     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, string $scheduleId): Response
+    public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, int $scheduleId): Response
     {
         $schedule = $scheduleRepository->find($scheduleId);
         if (!$schedule) {
@@ -45,6 +92,7 @@ class ReservationController extends AbstractController
                 }
             }
 
+            // If available, persist reservation
             $entityManager->persist($reservation);
             $entityManager->flush();
 
@@ -55,16 +103,18 @@ class ReservationController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
     #[Route('/', name: 'reservation_index', methods: ['GET'])]
-    public function index(ReservationRepository $reservationRepository): Response
+    public function index(EntityManagerInterface $entityManager): Response
     {
-        $reservations = $reservationRepository->findAll();
+        $reservations = $entityManager->getRepository(Reservation::class)->findAll();
 
         return $this->render('reservation/index.html.twig', [
             'reservations' => $reservations,
         ]);
     }
-      #[Route('/{id}/edit', name: 'reservation_edit', methods: ['GET', 'POST'])]
+
+    #[Route('/{id}/edit', name: 'reservation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ReservationFormType::class, $reservation);
@@ -72,6 +122,7 @@ class ReservationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
             return $this->redirectToRoute('reservation_index');
         }
 
@@ -81,9 +132,9 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'reservation_delete', methods: ['POST'])]
-    public function delete(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): RedirectResponse
+    public function delete(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$reservation->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $reservation->getId(), $request->request->get('_token'))) {
             $entityManager->remove($reservation);
             $entityManager->flush();
         }
@@ -91,3 +142,5 @@ class ReservationController extends AbstractController
         return $this->redirectToRoute('reservation_index');
     }
 }
+
+

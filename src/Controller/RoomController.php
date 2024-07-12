@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ScheduleRepository;
+use App\Repository\RoomRepository;
+use App\Repository\ReservationRepository;
 
 class RoomController extends AbstractController
 {
@@ -94,6 +96,30 @@ class RoomController extends AbstractController
         return $this->render('room/schedule.html.twig', [
             'room' => $room,
             'schedules' => $schedules,
+        ]);
+    }
+    #[Route('/room/{id}/statistics', name: 'room_statistics')]
+    public function statistics(int $id, RoomRepository $roomRepository, ReservationRepository $reservationRepository): Response
+    {
+        $room = $roomRepository->find($id);
+        if (!$room) {
+            throw $this->createNotFoundException('No room found for id ' . $id);
+        }
+
+        // Fetch reservations for this room
+        $reservations = $reservationRepository->findBy(['room' => $room]);
+
+        // Calculate statistics
+        $totalReservations = count($reservations);
+        $totalReservationTime = 0;
+        foreach ($reservations as $reservation) {
+            $totalReservationTime += $reservation->getEndTime()->getTimestamp() - $reservation->getStartTime()->getTimestamp();
+        }
+
+        return $this->render('room/statistics.html.twig', [
+            'room' => $room,
+            'totalReservations' => $totalReservations,
+            'totalReservationTime' => $totalReservationTime,
         ]);
     }
 }

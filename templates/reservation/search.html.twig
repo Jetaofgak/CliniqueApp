@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search Reservations{% endblock %}
+
+{% block body %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-container form div {
+        margin-bottom: 10px;
+    }
+
+    .form-container button {
+        align-self: flex-end;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #45a049;
+    }
+
+    .available-rooms {
+        margin-top: 20px;
+    }
+
+    .available-rooms table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .available-rooms th, .available-rooms td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .available-rooms th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+<div class="container">
+    <h1>Search Reservations</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.starttime) }}
+        {{ form_row(form.endtime) }}
+        <button type="submit">Search</button>
+    {{ form_end(form) }}
+
+    {% if available_rooms is not empty %}
+        <h2>Available Rooms</h2>
+        <ul>
+            {% for room in available_rooms %}
+                <li>{{ room.name }}
+                    <ul>
+                        {% for schedule in room.schedules %}
+                            <li>
+                                Schedule ID: {{ schedule.id }} -
+                                <a href="{{ path('reservation_new', {scheduleId: schedule.id}) }}">Reserve this room</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No rooms available for the selected time period.</p>
+    {% endif %}
+</div>
+{% endblock %}

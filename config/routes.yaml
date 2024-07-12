@@ -66,4 +66,13 @@ reservation_delete:
     path: /reservation/{id}/delete
     controller: App\Controller\ReservationController::delete
     methods: POST
+reservation_search:
+    path: /reservation/search
+    controller: App\Controller\ReservationController::search
+app_register:
+    path: /register
+    controller: App\Controller\RegistrationController::register
+room_statistics:
+    path: /room/{id}/statistics
+    controller: App\Controller\RoomController::statistics
 

@@ -1,0 +1,13 @@
+<!-- templates/room/statistics.html.twig -->
+{% extends 'base.html.twig' %}
+
+{% block title %}Room Statistics{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Statistics for {{ room.name }}</h1>
+
+    <p><strong>Total Reservations:</strong> {{ totalReservations }}</p>
+    <p><strong>Total Reservation Time:</strong> {{ totalReservationTime | date('H:i:s', 'UTC') }}</p>
+</div>
+{% endblock %}
