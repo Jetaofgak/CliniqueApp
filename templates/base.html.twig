@@ -3,48 +3,46 @@
 <html>
 <head>
     <title>{% block title %}My Application{% endblock %}</title>
-    <style>
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 9px #999;
-        }
-
-        .btn:hover {background-color: #3e8e41}
-
-        .btn:active {
-            background-color: #3e8e41;
-            box-shadow: 0 5px #666;
-            transform: translateY(4px);
+ <style>
+        body {
+            font-family: Arial, sans-serif;
         }
 
         nav ul {
-            list-style: none;
+            list-style-type: none;
             padding: 0;
+            display: flex;
+            gap: 10px;
         }
 
         nav ul li {
-            display: inline;
-            margin-right: 10px;
+            position: relative;
         }
 
-        nav ul li a {
-            text-decoration: none;
-            color: #4CAF50;
-            font-weight: bold;
+        .nav-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
         }
 
-        nav ul li a:hover {
-            color: #3e8e41;
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+
+        .description {
+            display: none;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 14px;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -52,13 +50,17 @@
     <header>
         <nav>
             <ul>
-                <li><a href="{{ path('app_homepage') }}">Home</a></li>
-                <li><a href="{{ path('app_rooms') }}">Rooms</a></li>
-                <li><a href="{{ path('schedule_index') }}">Schedule</a></li>
-                <li><a href="{{ path('reservation_index') }}">Reservations</a></li>
-                <li><a href="{{ path('app_login') }}">Login</a></li>
-                <li><a href="{{ path('app_register') }}">Register</a></li> <!-- Added Register link -->
-                <li><a href="{{ path('reservation_search') }}">Search</a></li>
+                 <ul>
+                <li><a href="{{ path('app_homepage') }}"><button class="nav-button" data-description="Go to homepage">Home</button></a></li>
+                <li><a href="{{ path('app_rooms') }}"><button class="nav-button" data-description="View available rooms">Rooms</button></a></li>
+                <li><a href="{{ path('schedule_index') }}"><button class="nav-button" data-description="Check the schedule">Schedule</button></a></li>
+                <li><a href="{{ path('reservation_index') }}"><button class="nav-button" data-description="Manage reservations">Reservations</button></a></li>
+                <li><a href="{{ path('app_login') }}"><button class="nav-button" data-description="Login to your account">Login</button></a></li>
+                <li><a href="{{ path('app_register') }}"><button class="nav-button" data-description="Register a new account">Register</button></a></li>
+                <li><a href="{{ path('reservation_search') }}"><button class="nav-button" data-description="Search for reservations">Search</button></a></li>
+              
+                
+            </ul>
                 
             </ul>
         </nav>
@@ -71,5 +73,29 @@
     <footer>
         {# Add your footer here #}
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navButtons = document.querySelectorAll('.nav-button');
+
+            navButtons.forEach(button => {
+                const descriptionText = button.getAttribute('data-description');
+                const description = document.createElement('div');
+                description.classList.add('description');
+                description.textContent = descriptionText;
+                document.body.appendChild(description);
+
+                button.addEventListener('mouseenter', (event) => {
+                    const rect = event.target.getBoundingClientRect();
+                    description.style.display = 'block';
+                    description.style.left = `${rect.left + window.scrollX}px`;
+                    description.style.top = `${rect.bottom + window.scrollY + 5}px`; // 5px below the button
+                });
+
+                button.addEventListener('mouseleave', () => {
+                    description.style.display = 'none';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
