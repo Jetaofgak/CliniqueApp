@@ -26,12 +26,14 @@ security:
                 enable_csrf: true
             logout:
                 path: app_logout
-            custom_authenticator:
-                - App\Security\LoginFormAuthenticator
+           
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
+                #always_remember_me: true
+            custom_authenticator: App\Security\AppCustomAuthenticator
+                #always_remember_me: true
 
     # Access control configuration
     access_control:
