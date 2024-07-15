@@ -4,8 +4,9 @@
 
 {% block body %}
 <style>
+    /* Same styles as index.html.twig */
     .form-container {
-        margin-top: 100px; /* Adjust this value to create enough space */
+        margin-top: 50px;
         max-width: 600px;
         margin-left: auto;
         margin-right: auto;
@@ -16,40 +17,37 @@
     }
 
     form {
-        width: 100%;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
+        margin-top: 20px;
     }
 
     label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
 
-    input[type="datetime-local"] {
+    input[type="time"], select {
         width: 100%;
         padding: 8px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        margin-top: 5px;
+        margin-bottom: 10px;
         box-sizing: border-box;
     }
 
-    .submit-button {
-        display: block;
-        width: 100%;
-        padding: 10px;
+    .form-actions {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .form-actions button {
+        padding: 10px 20px;
         background-color: #4CAF50;
         color: white;
-        text-align: center;
-        text-decoration: none;
+        border: none;
         border-radius: 4px;
         cursor: pointer;
     }
 
-    .submit-button:hover {
+    .form-actions button:hover {
         background-color: #45a049;
     }
 </style>
@@ -58,22 +56,15 @@
     <h1>Edit Schedule</h1>
 
     {{ form_start(form) }}
-    <div class="form-group">
-        {{ form_label(form.start_time) }}
-        {{ form_widget(form.start_time, {'attr': {'placeholder': 'Select start time'}}) }}
-    </div>
+    {{ form_row(form.room) }}
+    {{ form_row(form.openTime) }}
+    {{ form_row(form.closeTime) }}
+    {{ form_row(form.availableDays) }}
 
-    <div class="form-group">
-        {{ form_label(form.end_time) }}
-        {{ form_widget(form.end_time, {'attr': {'placeholder': 'Select end time'}}) }}
+    <div class="form-actions">
+        <button type="submit">Save Changes</button>
+        <a href="{{ path('schedule_index') }}">Cancel</a>
     </div>
-
-    <div class="form-group">
-        {{ form_label(form.room) }}
-        {{ form_widget(form.room) }}
-    </div>
-
-    <button type="submit" class="submit-button">Save Changes</button>
     {{ form_end(form) }}
 </div>
 {% endblock %}

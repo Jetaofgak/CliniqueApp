@@ -1,5 +1,4 @@
 <?php
-// src/Controller/ScheduleController.php
 
 namespace App\Controller;
 
@@ -37,8 +36,6 @@ class ScheduleController extends AbstractController
             $entityManager->persist($schedule);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Schedule created successfully.');
-
             return $this->redirectToRoute('schedule_index');
         }
 
@@ -57,8 +54,6 @@ class ScheduleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Schedule updated successfully.');
-
             return $this->redirectToRoute('schedule_index');
         }
 
@@ -74,8 +69,6 @@ class ScheduleController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$schedule->getId(), $request->request->get('_token'))) {
             $entityManager->remove($schedule);
             $entityManager->flush();
-
-            $this->addFlash('success', 'Schedule deleted successfully.');
         }
 
         return $this->redirectToRoute('schedule_index');

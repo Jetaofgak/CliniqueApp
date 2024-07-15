@@ -1,10 +1,9 @@
 <?php
+// src/Entity/Schedule.php
 
 namespace App\Entity;
 
 use App\Repository\ScheduleRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,21 +19,19 @@ class Schedule
     #[ORM\JoinColumn(nullable: false)]
     private ?Room $room = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $start_time = null;
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    private ?\DateTimeInterface $openTime = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $end_time = null;
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    private ?\DateTimeInterface $closeTime = null;
 
-    /**
-     * @var Collection<int, Reservation>
-     */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'Schedule')]
-    private Collection $reservations;
+    #[ORM\Column(type: Types::JSON)]
+    private ?array $availableDays = null;
 
     public function __construct()
     {
-        $this->reservations = new ArrayCollection();
+        // Ensure availableDays is initialized as an empty array if null
+        $this->availableDays = [];
     }
 
     public function getId(): ?int
@@ -42,72 +39,56 @@ class Schedule
         return $this->id;
     }
 
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
     public function getRoom(): ?Room
     {
         return $this->room;
     }
 
-    public function setRoom(?Room $room): self
+    public function setRoom(?Room $room): static
     {
         $this->room = $room;
         return $this;
     }
 
-    public function getStartTime(): ?\DateTimeInterface
+    public function getOpenTime(): ?\DateTimeInterface
     {
-        return $this->start_time;
+        return $this->openTime;
     }
 
-    public function setStartTime(\DateTimeInterface $start_time): self
+    public function setOpenTime(\DateTimeInterface $openTime): static
     {
-        $this->start_time = $start_time;
+        $this->openTime = $openTime;
         return $this;
     }
 
-    public function getEndTime(): ?\DateTimeInterface
+    public function getCloseTime(): ?\DateTimeInterface
     {
-        return $this->end_time;
+        return $this->closeTime;
     }
 
-    public function setEndTime(\DateTimeInterface $end_time): self
+    public function setCloseTime(\DateTimeInterface $closeTime): static
     {
-        $this->end_time = $end_time;
+        $this->closeTime = $closeTime;
         return $this;
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
-    public function getReservations(): Collection
+    public function getAvailableDays(): array
     {
-        return $this->reservations;
+        return $this->availableDays ?? [];
     }
 
-    public function addReservation(Reservation $reservation): static
+    public function setAvailableDays(?array $availableDays): static
     {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations->add($reservation);
-            $reservation->setSchedule($this);
+        $this->availableDays = $availableDays;
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function ensureAvailableDaysInitialized(): void
+    {
+        if ($this->availableDays === null) {
+            $this->availableDays = [];
         }
-
-        return $this;
-    }
-
-    public function removeReservation(Reservation $reservation): static
-    {
-        if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
-            if ($reservation->getSchedule() === $this) {
-                $reservation->setSchedule(null);
-            }
-        }
-
-        return $this;
     }
 }

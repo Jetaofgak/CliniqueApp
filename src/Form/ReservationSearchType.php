@@ -1,4 +1,4 @@
-<?php 
+<?php
 // src/Form/ReservationSearchType.php
 
 namespace App\Form;
@@ -26,3 +26,4 @@ class ReservationSearchType extends AbstractType
         $resolver->setDefaults([]);
     }
 }
+

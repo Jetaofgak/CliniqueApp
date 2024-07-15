@@ -1,4 +1,5 @@
 <?php
+// src/Entity/Room.php
 
 namespace App\Entity;
 
@@ -27,7 +28,7 @@ class Room
     /**
      * @var Collection<int, Schedule>
      */
-    #[ORM\OneToMany(targetEntity: Schedule::class, mappedBy: 'room', orphanRemoval: false)]
+    #[ORM\OneToMany(targetEntity: Schedule::class, mappedBy: 'room', orphanRemoval: true)]
     private Collection $schedules;
 
     public function __construct()
@@ -94,7 +95,7 @@ class Room
     public function addSchedule(Schedule $schedule): static
     {
         if (!$this->schedules->contains($schedule)) {
-            $this->schedules->add($schedule);
+            $this->schedules[] = $schedule;
             $schedule->setRoom($this);
         }
 
@@ -103,12 +104,7 @@ class Room
 
     public function removeSchedule(Schedule $schedule): static
     {
-        if ($this->schedules->removeElement($schedule)) {
-            // set the owning side to null (unless already changed)
-            if ($schedule->getRoom() === $this) {
-                $schedule->setRoom(null);
-            }
-        }
+        $this->schedules->removeElement($schedule);
 
         return $this;
     }

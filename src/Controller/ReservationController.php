@@ -1,5 +1,4 @@
 <?php
-
 // src/Controller/ReservationController.php
 
 namespace App\Controller;
@@ -14,12 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Room;
+use App\Entity\Schedule;
 
 #[Route('/reservation')]
 class ReservationController extends AbstractController
 {
     #[Route('/search', name: 'reservation_search', methods: ['GET', 'POST'])]
-    public function search(Request $request, RoomRepository $roomRepository, EntityManagerInterface $entityManager): Response
+    public function search(Request $request, RoomRepository $roomRepository): Response
     {
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
@@ -31,33 +32,7 @@ class ReservationController extends AbstractController
             $startTime = $data['starttime'];
             $endTime = $data['endtime'];
 
-            $rooms = $roomRepository->findAll();
-
-            foreach ($rooms as $room) {
-                $schedules = $room->getSchedules();
-                $isAvailable = true;
-
-                foreach ($schedules as $schedule) {
-                    $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
-
-                    foreach ($existingReservations as $existingReservation) {
-                        if (
-                            ($startTime < $existingReservation->getEndtime() && $endTime > $existingReservation->getStarttime())
-                        ) {
-                            $isAvailable = false;
-                            break;
-                        }
-                    }
-
-                    if (!$isAvailable) {
-                        break;
-                    }
-                }
-
-                if ($isAvailable) {
-                    $availableRooms[] = $room;
-                }
-            }
+            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
         }
 
         return $this->render('reservation/search.html.twig', [
@@ -65,6 +40,11 @@ class ReservationController extends AbstractController
             'available_rooms' => $availableRooms,
         ]);
     }
+
+    /**
+     * Check if a room is open at the given start and end times.
+     */
+    
 
     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, int $scheduleId): Response
@@ -81,11 +61,14 @@ class ReservationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Check availability
+            $startTime = $reservation->getStarttime();
+            $endTime = $reservation->getEndtime();
+
+            // Check availability against existing reservations for the schedule
             $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
             foreach ($existingReservations as $existingReservation) {
                 if (
-                    ($reservation->getStartTime() < $existingReservation->getEndTime() && $reservation->getEndTime() > $existingReservation->getStartTime())
+                    ($startTime < $existingReservation->getEndtime() && $endTime > $existingReservation->getStarttime())
                 ) {
                     $this->addFlash('error', 'The room is already booked for the selected time period.');
                     return $this->redirectToRoute('schedule_index');
@@ -103,6 +86,7 @@ class ReservationController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
 
     #[Route('/', name: 'reservation_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
@@ -142,5 +126,3 @@ class ReservationController extends AbstractController
         return $this->redirectToRoute('reservation_index');
     }
 }
-
-
