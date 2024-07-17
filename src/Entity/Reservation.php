@@ -18,6 +18,10 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private ?Schedule $schedule = null;
 
+    #[ORM\ManyToOne(targetEntity: Room::class, inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Room $room = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $starttime = null;
 
@@ -40,6 +44,17 @@ class Reservation
     public function setSchedule(?Schedule $schedule): self
     {
         $this->schedule = $schedule;
+        return $this;
+    }
+
+    public function getRoom(): ?Room
+    {
+        return $this->room;
+    }
+
+    public function setRoom(?Room $room): self
+    {
+        $this->room = $room;
         return $this;
     }
 

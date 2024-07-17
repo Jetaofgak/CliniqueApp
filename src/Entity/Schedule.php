@@ -1,9 +1,10 @@
 <?php
-// src/Entity/Schedule.php
 
 namespace App\Entity;
 
 use App\Repository\ScheduleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,10 +29,13 @@ class Schedule
     #[ORM\Column(type: Types::JSON)]
     private ?array $availableDays = null;
 
+    #[ORM\OneToMany(mappedBy: 'schedule', targetEntity: Reservation::class)]
+    private Collection $reservations;
+
     public function __construct()
     {
-        // Ensure availableDays is initialized as an empty array if null
         $this->availableDays = [];
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -90,5 +94,35 @@ class Schedule
         if ($this->availableDays === null) {
             $this->availableDays = [];
         }
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations[] = $reservation;
+            $reservation->setSchedule($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getSchedule() === $this) {
+                $reservation->setSchedule(null);
+            }
+        }
+
+        return $this;
     }
 }

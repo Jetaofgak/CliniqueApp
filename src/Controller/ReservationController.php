@@ -24,17 +24,18 @@ class ReservationController extends AbstractController
     {
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
-
+    
         $availableRooms = [];
-
+        $availableDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']; // Example available days
+    
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $startTime = $data['starttime'];
             $endTime = $data['endtime'];
-
-            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
+    
+            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime, $availableDays);
         }
-
+    
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
             'available_rooms' => $availableRooms,
