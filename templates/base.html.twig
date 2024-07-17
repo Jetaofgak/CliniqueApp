@@ -3,16 +3,28 @@
 <html>
 <head>
     <title>{% block title %}My Application{% endblock %}</title>
- <style>
+    <style>
         body {
             font-family: Arial, sans-serif;
         }
 
+        nav {
+            position: fixed; /* Keep the nav fixed at the top */
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: url('{{ asset('stripesNav.jpg') }}'); /* Optional: ensure nav background covers content beneath */
+            z-index: 1000; /* Ensure it's on top of other elements */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better separation */
+        }
+
         nav ul {
             list-style-type: none;
-            padding: 0;
+            padding: 10px;
+            margin: 0;
             display: flex;
             gap: 10px;
+            justify-content: center; /* Center align the nav items */
         }
 
         nav ul li {
@@ -44,13 +56,16 @@
             font-size: 14px;
             z-index: 1000;
         }
+
+        main {
+            margin-top: 60px; /* Adjust this if necessary to avoid content hiding under the fixed nav */
+        }
     </style>
 </head>
 <body>
     <header>
         <nav>
             <ul>
-                 <ul>
                 <li><a href="{{ path('app_homepage') }}"><button class="nav-button" data-description="Go to homepage">Home</button></a></li>
                 <li><a href="{{ path('app_rooms') }}"><button class="nav-button" data-description="View available rooms">Rooms</button></a></li>
                 <li><a href="{{ path('schedule_index') }}"><button class="nav-button" data-description="Check the schedule">Schedule</button></a></li>
@@ -58,10 +73,6 @@
                 <li><a href="{{ path('app_login') }}"><button class="nav-button" data-description="Login to your account">Login</button></a></li>
                 <li><a href="{{ path('app_register') }}"><button class="nav-button" data-description="Register a new account">Register</button></a></li>
                 <li><a href="{{ path('reservation_search') }}"><button class="nav-button" data-description="Search for reservations">Search</button></a></li>
-              
-                
-            </ul>
-                
             </ul>
         </nav>
     </header>
