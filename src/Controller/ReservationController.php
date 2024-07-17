@@ -41,51 +41,52 @@ class ReservationController extends AbstractController
         ]);
     }
 
-    /**
-     * Check if a room is open at the given start and end times.
-     */
+
     
 
-    #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, int $scheduleId): Response
-    {
-        $schedule = $scheduleRepository->find($scheduleId);
-        if (!$schedule) {
-            throw $this->createNotFoundException('No schedule found for id ' . $scheduleId);
-        }
-
-        $reservation = new Reservation();
-        $reservation->setSchedule($schedule);
-
-        $form = $this->createForm(ReservationFormType::class, $reservation);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $startTime = $reservation->getStarttime();
-            $endTime = $reservation->getEndtime();
-
-            // Check availability against existing reservations for the schedule
-            $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
-            foreach ($existingReservations as $existingReservation) {
-                if (
-                    ($startTime < $existingReservation->getEndtime() && $endTime > $existingReservation->getStarttime())
-                ) {
-                    $this->addFlash('error', 'The room is already booked for the selected time period.');
-                    return $this->redirectToRoute('schedule_index');
-                }
-            }
-
-            // If available, persist reservation
-            $entityManager->persist($reservation);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('schedule_index');
-        }
-
-        return $this->render('reservation/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
+     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
+     public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, int $scheduleId): Response
+     {
+         $schedule = $scheduleRepository->find($scheduleId);
+         if (!$schedule) {
+             throw $this->createNotFoundException('No schedule found for id ' . $scheduleId);
+         }
+     
+         $reservation = new Reservation();
+         $reservation->setSchedule($schedule);
+     
+         $form = $this->createForm(ReservationFormType::class, $reservation);
+         $form->handleRequest($request);
+     
+         if ($form->isSubmitted() && $form->isValid()) {
+             $openTime = $reservation->getSchedule()->getOpenTime();
+             $closeTime = $reservation->getSchedule()->getCloseTime();
+     
+             // Check availability against existing reservations for the schedule
+             $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
+             foreach ($existingReservations as $existingReservation) {
+                 $existingOpenTime = $existingReservation->getSchedule()->getOpenTime();
+                 $existingCloseTime = $existingReservation->getSchedule()->getCloseTime();
+     
+                 if (
+                     ($openTime < $existingCloseTime && $closeTime > $existingOpenTime)
+                 ) {
+                     $this->addFlash('error', 'The room is already booked for the selected time period.');
+                     return $this->redirectToRoute('schedule_index');
+                 }
+             }
+     
+             // If available, persist reservation
+             $entityManager->persist($reservation);
+             $entityManager->flush();
+     
+             return $this->redirectToRoute('schedule_index');
+         }
+     
+         return $this->render('reservation/new.html.twig', [
+             'form' => $form->createView(),
+         ]);
+     }
 
 
     #[Route('/', name: 'reservation_index', methods: ['GET'])]

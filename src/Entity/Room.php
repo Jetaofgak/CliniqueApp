@@ -25,10 +25,7 @@ class Room
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
-    /**
-     * @var Collection<int, Schedule>
-     */
-    #[ORM\OneToMany(targetEntity: Schedule::class, mappedBy: 'room', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'room', targetEntity: Schedule::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $schedules;
 
     public function __construct()
@@ -41,19 +38,12 @@ class Room
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -65,7 +55,7 @@ class Room
         return $this->capacity;
     }
 
-    public function setCapacity(int $capacity): static
+    public function setCapacity(int $capacity): self
     {
         $this->capacity = $capacity;
 
@@ -77,7 +67,7 @@ class Room
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 
@@ -92,19 +82,24 @@ class Room
         return $this->schedules;
     }
 
-    public function addSchedule(Schedule $schedule): static
+    public function addSchedule(Schedule $schedule): self
     {
         if (!$this->schedules->contains($schedule)) {
-            $this->schedules[] = $schedule;
+            $this->schedules->add($schedule);
             $schedule->setRoom($this);
         }
 
         return $this;
     }
 
-    public function removeSchedule(Schedule $schedule): static
+    public function removeSchedule(Schedule $schedule): self
     {
-        $this->schedules->removeElement($schedule);
+        if ($this->schedules->removeElement($schedule)) {
+            // set the owning side to null (unless already changed)
+            if ($schedule->getRoom() === $this) {
+                $schedule->setRoom(null);
+            }
+        }
 
         return $this;
     }

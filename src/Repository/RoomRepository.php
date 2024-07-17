@@ -5,15 +5,8 @@ namespace App\Repository;
 use App\Entity\Room;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Expr\Join;
 
-/**
- * @extends ServiceEntityRepository<Room>
- *
- * @method Room|null find($id, $lockMode = null, $lockVersion = null)
- * @method Room|null findOneBy(array $criteria, array $orderBy = null)
- * @method Room[]    findAll()
- * @method Room[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class RoomRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,9 +14,17 @@ class RoomRepository extends ServiceEntityRepository
         parent::__construct($registry, Room::class);
     }
 
-    // Add your custom query methods below if needed
+    public function findAvailableRooms(\DateTime $startTime, \DateTime $endTime): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.schedules', 's', Join::WITH, 's.room = r.id')
+            ->andWhere('s.openTime <= :startTime AND s.closeTime >= :endTime')
+            ->setParameter('startTime', $startTime)
+            ->setParameter('endTime', $endTime)
+            ->getQuery()
+            ->getResult();
+    }
 }
- 
 
     //    /**
     //     * @return Room[] Returns an array of Room objects

@@ -56,7 +56,7 @@
     }
 </style>
 
-<div class="container">
+<div class="form-container">
     <h1>Search Reservations</h1>
 
     {{ form_start(form) }}
@@ -66,21 +66,37 @@
     {{ form_end(form) }}
 
     {% if available_rooms is not empty %}
-        <h2>Available Rooms</h2>
-        <ul>
-            {% for room in available_rooms %}
-                <li>{{ room.name }}
-                    <ul>
-                        {% for schedule in room.schedules %}
-                            <li>
-                                Schedule ID: {{ schedule.id }} -
-                                <a href="{{ path('reservation_new', {scheduleId: schedule.id}) }}">Reserve this room</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="available-rooms">
+            <h2>Available Rooms</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room Name</th>
+                        <th>Schedule</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in available_rooms %}
+                        <tr>
+                            <td>{{ room.name }}</td>
+                            <td>
+                                <ul>
+                                    {% for schedule in room.schedules %}
+                                        <li>Schedule ID: {{ schedule.id }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                {% for schedule in room.schedules %}
+                                    <a href="{{ path('reservation_new', {scheduleId: schedule.id}) }}">Reserve this room</a><br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <p>No rooms available for the selected time period.</p>
     {% endif %}
