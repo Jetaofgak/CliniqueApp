@@ -20,8 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class AddUserCommand extends Command
 {
 
-    
-    
 
 }
-?>
+
+
