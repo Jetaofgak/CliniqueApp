@@ -4,7 +4,24 @@
 {% block title %}Room List{% endblock %}
 
 {% block body %}
+<head>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <style>
+
+    body
+    {
+          background: #7fe3d2;
+  background-size: cover;
+  background-position: center;
+}
+    }
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  
+}
     .table-container {
         margin-top: 100px;
         max-width: 800px;
@@ -43,6 +60,9 @@
         color: white;
         text-decoration: none;
         border-radius: 4px;
+        font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+        font-size: 16px;
+        font-weight: 800;
     }
 
     .add-room-link:hover, .view-schedule-link:hover {
@@ -56,12 +76,81 @@
     .action-buttons form {
         display: inline;
     }
+    .styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+tr,thead{
+     background: radial-gradient(circle, rgba(127, 227, 210, 1) 50%, rgba(127, 227, 210, 0) 90%);
+}
+.styled-table thead tr {
+    background-color: #009879;
+    color: green;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+.small-button
+{
+  background: #FF4742;
+  border: 1px solid #FF4742;
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 16px;
+  min-height: 30px;
+  outline: 0;
+  padding: 12px 14px;
+  text-align: center;
+  text-rendering: geometricprecision;
+  text-transform: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+}
+.small-button:hover,
+.small-button:active {
+  background-color: initial;
+  background-position: 0 0;
+  color: #FF4742;
+
+
+}
+a, td
+{
+  font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+}
+tr,thead{
+     background: radial-gradient(circle, rgba(127, 227, 210, 1) 50%, rgba(127, 227, 210, 0) 90%);
+}
 </style>
+
+</head>
 
 <div class="table-container">
     <h1>Room List</h1>
 
-    <table>
+    <table class="styled-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -84,7 +173,7 @@
                         <a href="{{ path('room_edit', {name: room.name}) }}">Edit</a>
                         <form method="post" action="{{ path('room_delete', {name: room.name}) }}" onsubmit="return confirm('Are you sure you want to delete this room?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ room.name) }}">
-                            <button type="submit">Delete</button>
+                            <button class="small-button" type="submit">Delete</button>
                         </form>
                     </td>
                     <td>
