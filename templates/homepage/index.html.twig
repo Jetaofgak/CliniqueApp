@@ -3,18 +3,301 @@
 {% block title %}Hello HomepageController!{% endblock %}
 
 {% block body %}
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #477fc9;
+    }
+
+    .header {
+        position: absolute;
+        top: 65px;
+        left: 0;
+        width: 100%;
+        height: 300px; /* Adjust the height as needed */
+        background: url('{{ asset('imgMainPage.jpg') }}') no-repeat center center;
+        background-size: cover;
+        z-index: 2; /* Ensure it's below the MainPart */
+    }
+
+    h1 {
+        font-size: 60px;
+        text-align: center;
+        color: #853535;
+        margin-top: 120px; /* Adjust this value to position the title vertically */
+    }
+
+    
+
+    .MainPart {
+        min-height: 100vh; 
+        top: 65px;
+        
+        background-size: cover;
+        position: relative; 
+          
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .bloc-left1, .bloc-right1, .bloc-2, .bloc-22 {
+    position: absolute;
+    width: 40%;
+    height: 40%;
+    background-color: black;
+    z-index: 10;
+    color: #134d9e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    text-align: center;
+    border-radius: 20px; /* Adjust the radius as needed */
+}
+
+   h2 {
+    margin-top: 20px;
+    text-align: center;
+    border: 2px solid #333; /* Example border style */
+    border-radius: 20px; /* Adjust the radius as needed */
+    padding: 10px 20px; /* Optional: Add padding to give space around the text */
+    backdrop-filter: blur(10px);
+}
+    .bloc-left1 {
+        top: 240px;
+        left: 100px; /* Add this to position it correctly */
+        background: url('{{ asset('hospital-chamber.jpg') }}');
+        background-size: 100% 100%;
+    }   
+
+    .bloc-right1{
+
+        top: 240px;
+        right: 100px;
+        background: url('{{ asset('talkingdoc.jpg') }}');
+        background-size: 100% 100%;
+    }
+    .bloc-2
+    {
+        right: 100px;
+        top: 800px;
+        background: url('{{ asset('colorwave2.jpg') }}');
+        background-size: 100% 100%;
+    }
+    .bloc-22
+    {
+        top: 800px;
+        left: 100px;
+        background: url('{{ asset('colorwave.jpg') }}');
+        background-size: 100% 100%;
+    }
+
+    .nav-button {
+    padding: 10px 20px;
+    background-color: #853535;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+    .nav-button:hover {
+    background-color: #6d2929;
+}
+    .button-holder,.button-holder2
+    {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-widht: 400px;
+    }
+
+    .button-holder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.end-doc
+{
+    position: absolute;
+    background: black;
+    bottom:0;
+}
+.container{
+	max-width: 1170px;
+	margin:auto;
+}
+.row{
+	display: flex;
+	flex-wrap: wrap;
+}
+ul{
+	list-style: none;
+}
+.footer{
+	background-color: #24262b;
+    padding: 70px 0;
+    bottom:0;
+    height: 400px;
+    margin-top: 400px;
+}
+.footer-col{
+   width: 25%;
+   padding: 0 15px;
+}
+.footer-col h4{
+	font-size: 18px;
+	color: #ffffff;
+	text-transform: capitalize;
+	margin-bottom: 35px;
+	font-weight: 500;
+	position: relative;
+}
+.footer-col h4::before{
+	content: '';
+	position: absolute;
+	left:0;
+	bottom: -10px;
+	background-color: #e91e63;
+	height: 2px;
+	box-sizing: border-box;
+	width: 50px;
+}
+.footer-col ul li:not(:last-child){
+	margin-bottom: 10px;
+}
+.footer-col ul li a{
+	font-size: 16px;
+	text-transform: capitalize;
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: 300;
+	color: #bbbbbb;
+	display: block;
+	transition: all 0.3s ease;
+}
+.footer-col ul li a:hover{
+	color: #ffffff;
+	padding-left: 8px;
+}
+.footer-col .social-links a{
+	display: inline-block;
+	height: 40px;
+	width: 40px;
+	background-color: rgba(255,255,255,0.2);
+	margin:0 10px 10px 0;
+	text-align: center;
+	line-height: 40px;
+	border-radius: 50%;
+	color: #ffffff;
+	transition: all 0.5s ease;
+}
+.footer-col .social-links a:hover{
+	color: #24262b;
+	background-color: #ffffff;
+}
+
+/*responsive*/
+@media(max-width: 767px){
+  .footer-col{
+    width: 50%;
+    margin-bottom: 30px;
+}
+}
+@media(max-width: 574px){
+  .footer-col{
+    width: 100%;
+}
+}
+
 </style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/Projet/CliniqueApp/src/Controller/HomepageController.php</code></li>
-        <li>Your template at <code>C:/xampp/Projet/CliniqueApp/templates/homepage/index.html.twig</code></li>
-    </ul>
+</head>
+<body>
+<div class="header">
+    <h1>Clinique Le Marrakech</h1>
 </div>
+
+<div class="MainPart">
+    <div class="container">
+        <div class="bloc-left1">
+            <h2> Reserver une piece</h2>
+            <a href="{{ path('app_rooms') }}" class="button-holder"><button class="nav-button" data-description="View available rooms">Rooms</button></a></li>
+
+            <a href="{{ path('reservation_index') }}" class="button-holder2"><button class="nav-button" data-description="Manage reservations">Reservations</button></a></li>
+                
+            
+        </div>
+        <div class="bloc-right1">
+            <h2> Consulter les disponibilité</h2>
+            <a href="{{ path('schedule_index') }}"class="button-holder"><button class="nav-button" data-description="Check the schedule">Schedule</button></a>
+            
+        </div>
+        <div class="bloc-2">
+            <h2> S'inscrire</h2>
+            <a href="{{ path('app_register') }}"class="button-holder"><button class="nav-button" data-description="Register a new account">Register</button></a>
+        </div>
+
+        <div class="bloc-22">
+            <h2> Déja Inscrit? Connectez-vous!</h2>
+            <a href="{{ path('app_login') }}"class="button-holder"><button class="nav-button" data-description="Login to your account">Login</button></a>
+        </div>
+    </div>
+</div>
+</body>
+<footer class="footer">
+  	 <div class="container">
+  	 	<div class="row">
+  	 		<div class="footer-col">
+  	 			<h4>company</h4>
+  	 			<ul>
+  	 				<li><a href="#">about us</a></li>
+  	 				<li><a href="#">our services</a></li>
+  	 				<li><a href="#">privacy policy</a></li>
+  	 				<li><a href="#">affiliate program</a></li>
+  	 			</ul>
+  	 		</div>
+  	 		<div class="footer-col">
+  	 			<h4>get help</h4>
+  	 			<ul>
+  	 				<li><a href="#">FAQ</a></li>
+  	 				<li><a href="#">bill status</a></li>
+  	 				<li><a href="#">payment options</a></li>
+  	 			</ul>
+  	 		</div>
+  	 		<div class="footer-col">
+  	 			<h4>Pharmacy shop</h4>
+  	 			<ul>
+  	 				<li><a href="#">Medicament 1</a></li>
+  	 				<li><a href="#">Medicament 2</a></li>
+  	 				<li><a href="#">Medicament 3</a></li>
+  	 				<li><a href="#">Medicament 4</a></li>
+  	 			</ul>
+  	 		</div>
+  	 		<div class="footer-col">
+  	 			<h4>follow us</h4>
+  	 			<div class="social-links">
+  	 				<a href="#"><i class="fab fa-facebook-f"></i></a>
+  	 				<a href="#"><i class="fab fa-twitter"></i></a>
+  	 				<a href="#"><i class="fab fa-instagram"></i></a>
+  	 				<a href="#"><i class="fab fa-linkedin-in"></i></a>
+  	 			</div>
+  	 		</div>
+  	 	</div>
+  	 </div>
+  </footer>
+
+
 {% endblock %}
