@@ -38,12 +38,11 @@
 </style>
 
 <div class="form-container">
-    <h1>New Reservation</h1>
+    <h1>New Reservation for Room {{ room.name }}</h1>
     {{ form_start(form) }}
         {{ form_row(form.starttime) }}
         {{ form_row(form.endtime) }}
         {{ form_row(form.notes) }}
-        {{ form_row(form.schedule) }}
         <button type="submit">Reserve</button>
     {{ form_end(form) }}
 </div>

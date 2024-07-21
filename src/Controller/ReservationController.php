@@ -4,7 +4,8 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
-use App\Form\ReservationFormType;
+use App\Entity\Schedule;
+use App\Form\ReservationType;
 use App\Form\ReservationSearchType;
 use App\Repository\RoomRepository;
 use App\Repository\ScheduleRepository;
@@ -13,8 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Room;
-use App\Entity\Schedule;
 
 #[Route('/reservation')]
 class ReservationController extends AbstractController
@@ -24,72 +23,58 @@ class ReservationController extends AbstractController
     {
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
-    
+
         $availableRooms = [];
-        $availableDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']; // Example available days
-    
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $startTime = $data['starttime'];
             $endTime = $data['endtime'];
-    
-            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime, $availableDays);
+
+            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
         }
-    
+
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
             'available_rooms' => $availableRooms,
         ]);
     }
 
-
+    #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em, ScheduleRepository $scheduleRepository, $scheduleId): Response
+    {
+        $reservation = new Reservation();
+        
+        // Find the schedule by ID
+        $schedule = $scheduleRepository->find($scheduleId);
+        if (!$schedule) {
+            throw $this->createNotFoundException('Schedule not found');
+        }
     
-
-     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
-     public function new(Request $request, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager, int $scheduleId): Response
-     {
-         $schedule = $scheduleRepository->find($scheduleId);
-         if (!$schedule) {
-             throw $this->createNotFoundException('No schedule found for id ' . $scheduleId);
-         }
-     
-         $reservation = new Reservation();
-         $reservation->setSchedule($schedule);
-     
-         $form = $this->createForm(ReservationFormType::class, $reservation);
-         $form->handleRequest($request);
-     
-         if ($form->isSubmitted() && $form->isValid()) {
-             $openTime = $reservation->getSchedule()->getOpenTime();
-             $closeTime = $reservation->getSchedule()->getCloseTime();
-     
-             // Check availability against existing reservations for the schedule
-             $existingReservations = $entityManager->getRepository(Reservation::class)->findBy(['schedule' => $schedule]);
-             foreach ($existingReservations as $existingReservation) {
-                 $existingOpenTime = $existingReservation->getSchedule()->getOpenTime();
-                 $existingCloseTime = $existingReservation->getSchedule()->getCloseTime();
-     
-                 if (
-                     ($openTime < $existingCloseTime && $closeTime > $existingOpenTime)
-                 ) {
-                     $this->addFlash('error', 'The room is already booked for the selected time period.');
-                     return $this->redirectToRoute('schedule_index');
-                 }
-             }
-     
-             // If available, persist reservation
-             $entityManager->persist($reservation);
-             $entityManager->flush();
-     
-             return $this->redirectToRoute('schedule_index');
-         }
-     
-         return $this->render('reservation/new.html.twig', [
-             'form' => $form->createView(),
-         ]);
-     }
-
-
+        // Automatically set the room based on the schedule
+        $room = $schedule->getRoom();
+        if (!$room) {
+            throw $this->createNotFoundException('Room not found for this schedule');
+        }
+    
+        $form = $this->createForm(ReservationType::class, $reservation);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Automatically set the room based on the schedule
+            $reservation->setRoom($room);
+            $reservation->setSchedule($schedule);
+    
+            $em->persist($reservation);
+            $em->flush();
+    
+            return $this->redirectToRoute('reservation_success');
+        }
+    
+        return $this->render('reservation/new.html.twig', [
+            'form' => $form->createView(),
+            'room' => $room,  // Pass the room to the template if needed
+        ]);
+    }
     #[Route('/', name: 'reservation_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -103,7 +88,7 @@ class ReservationController extends AbstractController
     #[Route('/{id}/edit', name: 'reservation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ReservationFormType::class, $reservation);
+        $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -126,5 +111,10 @@ class ReservationController extends AbstractController
         }
 
         return $this->redirectToRoute('reservation_index');
+    }
+    #[Route('/reservation/success', name: 'reservation_success', methods: ['GET'])]
+    public function success(): Response
+    {
+        return $this->render('reservation/success.html.twig');
     }
 }

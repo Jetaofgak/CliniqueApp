@@ -49,30 +49,43 @@ schedule_delete:
     controller: App\Controller\ScheduleController::delete
     methods: POST
     
+reservation_search:
+    path: /reservation/search
+    controller: App\Controller\ReservationController::search
+    methods: [GET, POST]
+
 reservation_new:
     path: /reservation/new/{scheduleId}
     controller: App\Controller\ReservationController::new
-    methods: ['GET', 'POST']
+    methods: [GET, POST]
+
 reservation_index:
-    path: /reservations
+    path: /reservation/
     controller: App\Controller\ReservationController::index
-    methods: GET
+    methods: [GET]
+
 reservation_edit:
     path: /reservation/{id}/edit
     controller: App\Controller\ReservationController::edit
-    methods: ['GET', 'POST']
+    methods: [GET, POST]
+    requirements:
+        id: \d+
 
 reservation_delete:
     path: /reservation/{id}/delete
     controller: App\Controller\ReservationController::delete
-    methods: POST
-reservation_search:
-    path: /reservation/search
-    controller: App\Controller\ReservationController::search
+    methods: [POST]
+    requirements:
+        id: \d+
 app_register:
     path: /register
     controller: App\Controller\RegistrationController::register
 room_statistics:
     path: /room/{id}/statistics
-    controller: App\Controller\RoomController::statistics
+    controller: App\Controller\RoomController::showStatistics
+    methods: [GET]
+reservation_success:
+    path: /reservation/success
+    controller: App\Controller\ReservationController::success
+    methods: GET
 

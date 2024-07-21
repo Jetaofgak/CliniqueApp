@@ -1,41 +1,45 @@
 <?php
 
-namespace App\Form;
+// src/Form/ReservationType.php
 
+namespace App\Form;
+use Proxies\__CG__\App\Entity\Schedule;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Entity\Reservation;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use App\Entity\Schedule;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
-class ReservationFormType extends AbstractType
+class ReservationType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('starttime', DateTimeType::class, [
                 'widget' => 'single_text',
+                'label' => 'Start Time',
             ])
             ->add('endtime', DateTimeType::class, [
                 'widget' => 'single_text',
+                'label' => 'End Time',
             ])
-            ->add('notes', TextareaType::class, [
+            ->add('notes', TextType::class, [
                 'required' => false,
+                'label' => 'Notes',
             ])
-            ->add('schedule', EntityType::class, [
-                'class' => Schedule::class,
-                'choice_label' => 'id',
+            // Note: Do not add 'room' field here
+            ->add('save', SubmitType::class, [
+                'label' => 'Reserve',
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Reservation::class,
         ]);
     }
 }
-
