@@ -1,13 +1,44 @@
-<!-- templates/room/statistics.html.twig -->
+{# templates/room/statistics.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Room Statistics{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Statistics for {{ room.name }}</h1>
+<style>
+    .chart-container {
+        width: 80%;
+        margin: auto;
+    }
+</style>
 
-    <p><strong>Total Reservations:</strong> {{ totalReservations }}</p>
-    <p><strong>Total Reservation Time:</strong> {{ totalReservationTime | date('H:i:s', 'UTC') }}</p>
+<h1>Statistics for Room: {{ room.name }}</h1>
+
+<div class="chart-container">
+    <canvas id="reservationChart"></canvas>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('reservationChart').getContext('2d');
+    const reservationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ dates|json_encode|raw }},
+            datasets: [{
+                label: 'Number of Reservations',
+                data: {{ counts|json_encode|raw }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -16,25 +16,18 @@
     body {
         margin: 0;
         font-family: Arial, sans-serif;
-        background: #477fc9;
+        background: #c2f0f0;
     }
 
-    .header {
-        position: absolute;
-        top: 65px;
-        left: 0;
-        width: 100%;
-        height: 300px; /* Adjust the height as needed */
-        background: url('{{ asset('imgMainPage.jpg') }}') no-repeat center center;
-        background-size: cover;
-        z-index: 2; /* Ensure it's below the MainPart */
-    }
 
     h1 {
-        font-size: 60px;
+        font-size: 500%;
         text-align: center;
-        color: #853535;
+        color: brown;
         margin-top: 120px; /* Adjust this value to position the title vertically */
+         border: 2px solid #333; /* Example border style */
+    border-radius: 20px; /* Adjust the radius as needed */
+    padding: 10px 20px; /* Optional: Add padding to give space around the text */
     }
 
     
@@ -68,7 +61,7 @@
     border-radius: 20px; /* Adjust the radius as needed */
 }
 
-   h2 {
+   h2 ,h1{
     margin-top: 20px;
     text-align: center;
     border: 2px solid #333; /* Example border style */
@@ -76,8 +69,9 @@
     padding: 10px 20px; /* Optional: Add padding to give space around the text */
     backdrop-filter: blur(10px);
 }
+
     .bloc-left1 {
-        top: 240px;
+        top: 20px;
         left: 100px; /* Add this to position it correctly */
         background: url('{{ asset('hospital-chamber.jpg') }}');
         background-size: 100% 100%;
@@ -85,7 +79,7 @@
 
     .bloc-right1{
 
-        top: 240px;
+        top: 20px;
         right: 100px;
         background: url('{{ asset('talkingdoc.jpg') }}');
         background-size: 100% 100%;
@@ -93,13 +87,13 @@
     .bloc-2
     {
         right: 100px;
-        top: 800px;
+        top: 470px;
         background: url('{{ asset('colorwave2.jpg') }}');
         background-size: 100% 100%;
     }
     .bloc-22
     {
-        top: 800px;
+        top: 470px;
         left: 100px;
         background: url('{{ asset('colorwave.jpg') }}');
         background-size: 100% 100%;
@@ -147,68 +141,7 @@
 ul{
 	list-style: none;
 }
-.footer{
-	background-color: #24262b;
-    padding: 70px 0;
-    bottom:0;
-    height: 400px;
-    margin-top: 400px;
-}
-.footer-col{
-   width: 25%;
-   padding: 0 15px;
-}
-.footer-col h4{
-	font-size: 18px;
-	color: #ffffff;
-	text-transform: capitalize;
-	margin-bottom: 35px;
-	font-weight: 500;
-	position: relative;
-}
-.footer-col h4::before{
-	content: '';
-	position: absolute;
-	left:0;
-	bottom: -10px;
-	background-color: #e91e63;
-	height: 2px;
-	box-sizing: border-box;
-	width: 50px;
-}
-.footer-col ul li:not(:last-child){
-	margin-bottom: 10px;
-}
-.footer-col ul li a{
-	font-size: 16px;
-	text-transform: capitalize;
-	color: #ffffff;
-	text-decoration: none;
-	font-weight: 300;
-	color: #bbbbbb;
-	display: block;
-	transition: all 0.3s ease;
-}
-.footer-col ul li a:hover{
-	color: #ffffff;
-	padding-left: 8px;
-}
-.footer-col .social-links a{
-	display: inline-block;
-	height: 40px;
-	width: 40px;
-	background-color: rgba(255,255,255,0.2);
-	margin:0 10px 10px 0;
-	text-align: center;
-	line-height: 40px;
-	border-radius: 50%;
-	color: #ffffff;
-	transition: all 0.5s ease;
-}
-.footer-col .social-links a:hover{
-	color: #24262b;
-	background-color: #ffffff;
-}
+
 
 /*responsive*/
 @media(max-width: 767px){
@@ -226,9 +159,7 @@ ul{
 </style>
 </head>
 <body>
-<div class="header">
-    <h1>Clinique Le Marrakech</h1>
-</div>
+
 
 <div class="MainPart">
     <div class="container">
@@ -257,47 +188,7 @@ ul{
     </div>
 </div>
 </body>
-<footer class="footer">
-  	 <div class="container">
-  	 	<div class="row">
-  	 		<div class="footer-col">
-  	 			<h4>company</h4>
-  	 			<ul>
-  	 				<li><a href="#">about us</a></li>
-  	 				<li><a href="#">our services</a></li>
-  	 				<li><a href="#">privacy policy</a></li>
-  	 				<li><a href="#">affiliate program</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="footer-col">
-  	 			<h4>get help</h4>
-  	 			<ul>
-  	 				<li><a href="#">FAQ</a></li>
-  	 				<li><a href="#">bill status</a></li>
-  	 				<li><a href="#">payment options</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="footer-col">
-  	 			<h4>Pharmacy shop</h4>
-  	 			<ul>
-  	 				<li><a href="#">Medicament 1</a></li>
-  	 				<li><a href="#">Medicament 2</a></li>
-  	 				<li><a href="#">Medicament 3</a></li>
-  	 				<li><a href="#">Medicament 4</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="footer-col">
-  	 			<h4>follow us</h4>
-  	 			<div class="social-links">
-  	 				<a href="#"><i class="fab fa-facebook-f"></i></a>
-  	 				<a href="#"><i class="fab fa-twitter"></i></a>
-  	 				<a href="#"><i class="fab fa-instagram"></i></a>
-  	 				<a href="#"><i class="fab fa-linkedin-in"></i></a>
-  	 			</div>
-  	 		</div>
-  	 	</div>
-  	 </div>
-  </footer>
+
 
 
 {% endblock %}

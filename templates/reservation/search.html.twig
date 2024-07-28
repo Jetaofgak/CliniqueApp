@@ -1,3 +1,5 @@
+{# templates/reservation/search.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}Search Reservations{% endblock %}
@@ -83,14 +85,12 @@
                             <td>
                                 <ul>
                                     {% for schedule in room.schedules %}
-                                        <li>Schedule ID: {{ schedule.id }}</li>
+                                        <li>
+                                            Schedule ID: {{ schedule.id }} -
+                                            <a href="{{ path('reservation_new', { scheduleId: schedule.id }) }}">Reserve this room</a>
+                                        </li>
                                     {% endfor %}
                                 </ul>
-                            </td>
-                            <td>
-                                {% for schedule in room.schedules %}
-                                    <a href="{{ path('reservation_new', {scheduleId: schedule.id}) }}">Reserve this room</a><br>
-                                {% endfor %}
                             </td>
                         </tr>
                     {% endfor %}

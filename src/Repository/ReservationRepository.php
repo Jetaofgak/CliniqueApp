@@ -15,7 +15,29 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
-
+    public function calculateReservationRate(int $roomId): float
+    {
+        $conn = $this->getEntityManager()->getConnection();
+    
+        $sql = '
+            SELECT 
+                COUNT(r.id) AS totalReservations,
+                DATEDIFF(MAX(r.endtime), MIN(r.starttime)) AS totalDays
+            FROM reservation r
+            JOIN schedule s ON r.schedule_id = s.id
+            WHERE s.room_id = :roomId
+        ';
+        
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery(['roomId' => $roomId]);
+        
+        $result = $resultSet->fetch(); // Use fetch() instead of fetchAssociative()
+        
+        $totalReservations = $result['totalReservations'];
+        $totalDays = $result['totalDays'] ?: 1; // Avoid division by zero
+        
+        return ($totalReservations / $totalDays) * 100; // Reservation rate as percentage
+    }
     //    /**
     //     * @return Reservation[] Returns an array of Reservation objects
     //     */

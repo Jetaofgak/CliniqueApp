@@ -12,12 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ScheduleRepository;
 use App\Repository\RoomRepository;
 use App\Repository\ReservationRepository;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 class RoomController extends AbstractController
 {
     #[Route('/room', name: 'room_index')]
     public function index(EntityManagerInterface $entityManager): Response
     {
+        if (!$this->getUser()) {
+            return new RedirectResponse($this->generateUrl('app_login'));
+        }
         $rooms = $entityManager->getRepository(Room::class)->findAll();
 
         return $this->render('room/index.html.twig', [
@@ -98,28 +101,45 @@ class RoomController extends AbstractController
             'schedules' => $schedules,
         ]);
     }
-    #[Route('/room/{id}/statistics', name: 'room_statistics')]
-    public function statistics(int $id, RoomRepository $roomRepository, ReservationRepository $reservationRepository): Response
+    private EntityManagerInterface $entityManager;
+    private ReservationRepository $reservationRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, ReservationRepository $reservationRepository)
     {
-        $room = $roomRepository->find($id);
+        $this->entityManager = $entityManager;
+        $this->reservationRepository = $reservationRepository;
+    }
+
+    #[Route('/room/{id}/statistics', name: 'room_statistics')]
+    public function showStatistics(int $id): Response
+    {
+        $room = $this->entityManager->getRepository(Room::class)->find($id);
+        
         if (!$room) {
-            throw $this->createNotFoundException('No room found for id ' . $id);
+            throw $this->createNotFoundException('Room not found');
         }
 
-        // Fetch reservations for this room
-        $reservations = $reservationRepository->findBy(['room' => $room]);
+        // Fetch reservations for the room
+        $reservations = $this->reservationRepository->findBy(['room' => $room]);
 
-        // Calculate statistics
-        $totalReservations = count($reservations);
-        $totalReservationTime = 0;
+        // Prepare data for the chart
+        $data = [];
         foreach ($reservations as $reservation) {
-            $totalReservationTime += $reservation->getEndTime()->getTimestamp() - $reservation->getStartTime()->getTimestamp();
+            $date = $reservation->getStarttime()->format('Y-m-d');
+            if (!isset($data[$date])) {
+                $data[$date] = 0;
+            }
+            $data[$date]++;
         }
+
+        // Prepare chart data
+        $dates = array_keys($data);
+        $counts = array_values($data);
 
         return $this->render('room/statistics.html.twig', [
             'room' => $room,
-            'totalReservations' => $totalReservations,
-            'totalReservationTime' => $totalReservationTime,
+            'dates' => $dates,
+            'counts' => $counts,
         ]);
     }
 }
