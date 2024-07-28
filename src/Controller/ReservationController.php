@@ -6,6 +6,8 @@ namespace App\Controller;
 use App\Entity\Reservation;
 use App\Entity\Schedule;
 use App\Form\ReservationType;
+use App\Entity\Schedule;
+use App\Form\ReservationType;
 use App\Form\ReservationSearchType;
 use App\Repository\RoomRepository;
 use App\Repository\ScheduleRepository;
@@ -28,6 +30,7 @@ class ReservationController extends AbstractController
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
 
+
         $availableRooms = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -35,7 +38,10 @@ class ReservationController extends AbstractController
             $endTime = $data['endtime'];
 
             $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
+
+            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
         }
+
 
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
@@ -43,6 +49,42 @@ class ReservationController extends AbstractController
         ]);
     }
 
+    #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em, ScheduleRepository $scheduleRepository, $scheduleId): Response
+    {
+        $reservation = new Reservation();
+        
+        // Find the schedule by ID
+        $schedule = $scheduleRepository->find($scheduleId);
+        if (!$schedule) {
+            throw $this->createNotFoundException('Schedule not found');
+        }
+    
+        // Automatically set the room based on the schedule
+        $room = $schedule->getRoom();
+        if (!$room) {
+            throw $this->createNotFoundException('Room not found for this schedule');
+        }
+    
+        $form = $this->createForm(ReservationType::class, $reservation);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Automatically set the room based on the schedule
+            $reservation->setRoom($room);
+            $reservation->setSchedule($schedule);
+    
+            $em->persist($reservation);
+            $em->flush();
+    
+            return $this->redirectToRoute('reservation_success');
+        }
+    
+        return $this->render('reservation/new.html.twig', [
+            'form' => $form->createView(),
+            'room' => $room,  // Pass the room to the template if needed
+        ]);
+    }
     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, ScheduleRepository $scheduleRepository, $scheduleId): Response
     {
@@ -96,6 +138,7 @@ class ReservationController extends AbstractController
     public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ReservationType::class, $reservation);
+        $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -118,6 +161,11 @@ class ReservationController extends AbstractController
         }
 
         return $this->redirectToRoute('reservation_index');
+    }
+    #[Route('/reservation/success', name: 'reservation_success', methods: ['GET'])]
+    public function success(): Response
+    {
+        return $this->render('reservation/success.html.twig');
     }
     #[Route('/reservation/success', name: 'reservation_success', methods: ['GET'])]
     public function success(): Response
