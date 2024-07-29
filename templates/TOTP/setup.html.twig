@@ -1,0 +1,21 @@
+{# templates/two_factor/setup.html.twig #}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Two-Factor Authentication Setup</title>
+</head>
+<body>
+    <h1>Two-Factor Authentication Setup</h1>
+    <p>To secure your account, please set up Two-Factor Authentication (2FA). Scan the QR code below with your authenticator app to link it with your account.</p>
+    <div>
+        {% if qrCodeUrl %}
+            <img src="{{ qrCodeUrl }}" alt="QR Code">
+        {% else %}
+            <p>Unable to generate QR code.</p>
+        {% endif %}
+    </div>
+    <p>Secret: {{ secret }}</p>
+</body>
+</html>

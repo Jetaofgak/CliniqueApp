@@ -1,19 +1,9 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
-parameters:
-    # parameter_name: value
-
+# config/services.yaml
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
@@ -21,9 +11,27 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    App\Security\LoginFormAuthenticator:
-        autowire: true
-        autoconfigure: true
+    App\Controller\TwoFactorController:
+        arguments:
+            $qrCodeBuilder: '@Endroid\QrCode\Builder\BuilderInterface'
 
+    # QR Code builder service definition
+    Endroid\QrCode\Builder\BuilderInterface:
+        factory: ['Endroid\QrCode\Builder\Builder', 'create']
+
+    # 2FA Authentication Handlers
+    App\Security\AuthenticationSuccessHandler:
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+
+    App\Security\TwoFactorAuthenticationRequiredHandler:
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+
+    App\Security\TwoFactorAuthenticationSuccessHandler:
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+
+    App\Security\TwoFactorAuthenticationFailureHandler:
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
