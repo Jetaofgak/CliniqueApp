@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 #[Route('/schedule')]
 class ScheduleController extends AbstractController
@@ -17,6 +18,9 @@ class ScheduleController extends AbstractController
     #[Route('/', name: 'schedule_index', methods: ['GET'])]
     public function index(ScheduleRepository $scheduleRepository): Response
     {
+        if (!$this->getUser()) {
+            return new RedirectResponse($this->generateUrl('app_login'));
+        }
         $schedules = $scheduleRepository->findAll();
 
         return $this->render('schedule/index.html.twig', [

@@ -12,12 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ScheduleRepository;
 use App\Repository\RoomRepository;
 use App\Repository\ReservationRepository;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 class RoomController extends AbstractController
 {
     #[Route('/room', name: 'room_index')]
     public function index(EntityManagerInterface $entityManager): Response
     {
+        if (!$this->getUser()) {
+            return new RedirectResponse($this->generateUrl('app_login'));
+        }
         $rooms = $entityManager->getRepository(Room::class)->findAll();
 
         return $this->render('room/index.html.twig', [
