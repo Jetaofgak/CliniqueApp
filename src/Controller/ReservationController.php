@@ -3,9 +3,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Reservation;
-use App\Entity\Schedule;
 use App\Form\ReservationType;
+use App\Entity\Schedule;
 use App\Form\ReservationSearchType;
 use App\Repository\RoomRepository;
 use App\Repository\ScheduleRepository;
@@ -14,16 +13,25 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Room;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 #[Route('/reservation')]
 class ReservationController extends AbstractController
 {
+
     #[Route('/search', name: 'reservation_search', methods: ['GET', 'POST'])]
     public function search(Request $request, RoomRepository $roomRepository, ScheduleRepository $scheduleRepository): Response
     {
+        
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
+<<<<<<< HEAD
     
+=======
+
+
+>>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87
         $availableRooms = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -31,6 +39,7 @@ class ReservationController extends AbstractController
             $endTime = $data['endtime'];
     
             $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
+<<<<<<< HEAD
     
             // Check if no rooms are available
             if (empty($availableRooms)) {
@@ -44,6 +53,13 @@ class ReservationController extends AbstractController
             }
         }
     
+=======
+
+            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
+        }
+
+
+>>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
             'available_rooms' => $availableRooms,
@@ -90,6 +106,9 @@ class ReservationController extends AbstractController
     #[Route('/', name: 'reservation_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
+        if (!$this->getUser()) {
+            return new RedirectResponse($this->generateUrl('app_login'));
+        }
         $reservations = $entityManager->getRepository(Reservation::class)->findAll();
 
         return $this->render('reservation/index.html.twig', [
@@ -100,6 +119,7 @@ class ReservationController extends AbstractController
     #[Route('/{id}/edit', name: 'reservation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
+        $form = $this->createForm(ReservationType::class, $reservation);
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
