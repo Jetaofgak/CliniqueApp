@@ -88,4 +88,18 @@ reservation_success:
     path: /reservation/success
     controller: App\Controller\ReservationController::success
     methods: GET
-
+2fa_login:
+    path: /2fa
+    controller: App\Controller\SecurityController::twoFactor
+2fa_login_check:
+    path: /2fa_check
+two_factor_setup:
+    path: /2fa/setup
+    controller: App\Controller\TwoFactorController::setup
+admin_users:
+    path: /admin/users
+    controller: App\Controller\AdminController::listUsers
+    methods: [GET]
+room_availability:
+    path: /room/availability
+    controller: App\Controller\RoomController::availability

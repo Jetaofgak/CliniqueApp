@@ -19,25 +19,37 @@ use Symfony\Component\Routing\Annotation\Route;
 class ReservationController extends AbstractController
 {
     #[Route('/search', name: 'reservation_search', methods: ['GET', 'POST'])]
-    public function search(Request $request, RoomRepository $roomRepository): Response
+    public function search(Request $request, RoomRepository $roomRepository, ScheduleRepository $scheduleRepository): Response
     {
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
-
+    
         $availableRooms = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $startTime = $data['starttime'];
             $endTime = $data['endtime'];
-
+    
             $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
+    
+            // Check if no rooms are available
+            if (empty($availableRooms)) {
+                // Fetch room schedules to suggest availability
+                $schedules = $scheduleRepository->findAll();
+                
+                return $this->render('room/availability.html.twig', [
+                    'message' => 'Unfortunately, there are no available rooms at the selected time. Here is the availability of the rooms:',
+                    'schedules' => $schedules,
+                ]);
+            }
         }
-
+    
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
             'available_rooms' => $availableRooms,
         ]);
     }
+    
 
     #[Route('/new/{scheduleId}', name: 'reservation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, ScheduleRepository $scheduleRepository, $scheduleId): Response

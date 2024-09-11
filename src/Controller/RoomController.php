@@ -139,4 +139,33 @@ class RoomController extends AbstractController
             'counts' => $counts,
         ]);
     }
+    public function availability(Request $request, RoomRepository $roomRepository)
+{
+    // Fetch all rooms and their schedules
+    $rooms = $roomRepository->findAll();
+
+    // Prepare room data to show availability
+    $roomAvailability = [];
+    foreach ($rooms as $room) {
+        $schedules = $room->getSchedules();
+        $reservations = [];
+        foreach ($schedules as $schedule) {
+            foreach ($schedule->getReservations() as $reservation) {
+                $reservations[] = [
+                    'starttime' => $reservation->getStarttime(),
+                    'endtime' => $reservation->getEndtime(),
+                ];
+            }
+        }
+        $roomAvailability[] = [
+            'room' => $room,
+            'schedules' => $schedules,
+            'reservations' => $reservations
+        ];
+    }
+
+    return $this->render('room/availability.html.twig', [
+        'roomAvailability' => $roomAvailability,
+    ]);
+}
 }

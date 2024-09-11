@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Two-Factor Authentication Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .qr-code {
+            margin: 20px 0;
+        }
+        .qr-code img {
+            max-width: 100%;
+            height: auto;
+        }
+        .secret {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Two-Factor Authentication Setup</h1>
+        <p>To secure your account, please set up Two-Factor Authentication (2FA). Scan the QR code below with your authenticator app to link it with your account.</p>
+        <div class="qr-code">
+            {% if qrCodeUrl %}
+                <img src="{{ qrCodeUrl }}" alt="QR Code">
+            {% else %}
+                <p>Unable to generate QR code.</p>
+            {% endif %}
+        </div>
+        <p class="secret">Secret: {{ secret }}</p>
+    </div>
+</body>
+</html>

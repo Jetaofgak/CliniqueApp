@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Two-Factor Authentication</h1>
+
+    <form method="post" action="{{ path('2fa_login_check') }}">
+        <label for="auth_code">Authentication Code</label>
+        <input type="text" id="auth_code" name="_auth_code" required>
+        <input type="hidden" name="_trusted" value="{{ app.request.get('_trusted') }}">
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}
