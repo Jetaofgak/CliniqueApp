@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Room;
 use App\Form\RoomType;
+use App\Entity\Reservation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,15 +14,25 @@ use App\Repository\ScheduleRepository;
 use App\Repository\RoomRepository;
 use App\Repository\ReservationRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+
 class RoomController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+    private ReservationRepository $reservationRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, ReservationRepository $reservationRepository)
+    {
+        $this->entityManager = $entityManager;
+        $this->reservationRepository = $reservationRepository;
+    }
+
     #[Route('/room', name: 'room_index')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(): Response
     {
         if (!$this->getUser()) {
             return new RedirectResponse($this->generateUrl('app_login'));
         }
-        $rooms = $entityManager->getRepository(Room::class)->findAll();
+        $rooms = $this->entityManager->getRepository(Room::class)->findAll();
 
         return $this->render('room/index.html.twig', [
             'rooms' => $rooms,
@@ -29,7 +40,7 @@ class RoomController extends AbstractController
     }
 
     #[Route('/room/new', name: 'room_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
         $room = new Room();
         $form = $this->createForm(RoomType::class, $room);
@@ -37,8 +48,8 @@ class RoomController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($room);
-            $entityManager->flush();
+            $this->entityManager->persist($room);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('room_index');
         }
@@ -49,9 +60,9 @@ class RoomController extends AbstractController
     }
 
     #[Route('/room/{name}/edit', name: 'room_edit')]
-    public function edit(Request $request, EntityManagerInterface $entityManager, string $name): Response
+    public function edit(Request $request, string $name): Response
     {
-        $room = $entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
+        $room = $this->entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
 
         if (!$room) {
             throw $this->createNotFoundException('No room found for name ' . $name);
@@ -62,7 +73,7 @@ class RoomController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('room_index');
         }
@@ -73,22 +84,26 @@ class RoomController extends AbstractController
         ]);
     }
 
-    #[Route('/room/{name}/delete', name: 'room_delete', methods: ['POST'])]
-    public function delete(Request $request, EntityManagerInterface $entityManager, string $name): Response
+    #[Route('/room/{id}/delete', name: 'room_delete', methods: ['POST'])]
+    public function delete(Request $request, int $id, RoomRepository $roomRepository): Response
     {
-        $room = $entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
-
-        if ($room) {
-            $entityManager->remove($room);
-            $entityManager->flush();
+        $room = $roomRepository->find($id);
+    
+        if (!$room) {
+            throw $this->createNotFoundException('Room not found');
         }
-
+    
+        if ($this->isCsrfTokenValid('delete' . $room->getId(), $request->request->get('_token'))) {
+            $roomRepository->deleteRoomWithSchedulesAndReservations($room);
+        }
+    
         return $this->redirectToRoute('room_index');
     }
+
     #[Route('/room/{name}/schedule', name: 'room_schedule')]
-    public function schedule(string $name, ScheduleRepository $scheduleRepository, EntityManagerInterface $entityManager): Response
+    public function schedule(string $name, ScheduleRepository $scheduleRepository): Response
     {
-        $room = $entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
+        $room = $this->entityManager->getRepository(Room::class)->findOneBy(['name' => $name]);
 
         if (!$room) {
             throw $this->createNotFoundException('No room found for name ' . $name);
@@ -101,20 +116,12 @@ class RoomController extends AbstractController
             'schedules' => $schedules,
         ]);
     }
-    private EntityManagerInterface $entityManager;
-    private ReservationRepository $reservationRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, ReservationRepository $reservationRepository)
-    {
-        $this->entityManager = $entityManager;
-        $this->reservationRepository = $reservationRepository;
-    }
 
     #[Route('/room/{id}/statistics', name: 'room_statistics')]
     public function showStatistics(int $id): Response
     {
         $room = $this->entityManager->getRepository(Room::class)->find($id);
-        
+
         if (!$room) {
             throw $this->createNotFoundException('Room not found');
         }
@@ -142,33 +149,36 @@ class RoomController extends AbstractController
             'counts' => $counts,
         ]);
     }
-    public function availability(Request $request, RoomRepository $roomRepository)
-{
-    // Fetch all rooms and their schedules
-    $rooms = $roomRepository->findAll();
 
-    // Prepare room data to show availability
-    $roomAvailability = [];
-    foreach ($rooms as $room) {
-        $schedules = $room->getSchedules();
-        $reservations = [];
-        foreach ($schedules as $schedule) {
-            foreach ($schedule->getReservations() as $reservation) {
-                $reservations[] = [
-                    'starttime' => $reservation->getStarttime(),
-                    'endtime' => $reservation->getEndtime(),
-                ];
+    #[Route('/room/availability', name: 'room_availability')]
+    public function availability(RoomRepository $roomRepository): Response
+    {
+        // Fetch all rooms and their schedules
+        $rooms = $roomRepository->findAll();
+
+        // Prepare room data to show availability
+        $roomAvailability = [];
+        foreach ($rooms as $room) {
+            $schedules = $room->getSchedules();
+            $reservations = [];
+            foreach ($schedules as $schedule) {
+                foreach ($schedule->getReservations() as $reservation) {
+                    $reservations[] = [
+                        'starttime' => $reservation->getStarttime(),
+                        'endtime' => $reservation->getEndtime(),
+                    ];
+                }
             }
+            $roomAvailability[] = [
+                'room' => $room,
+                'schedules' => $schedules,
+                'reservations' => $reservations
+            ];
         }
-        $roomAvailability[] = [
-            'room' => $room,
-            'schedules' => $schedules,
-            'reservations' => $reservations
-        ];
-    }
 
-    return $this->render('room/availability.html.twig', [
-        'roomAvailability' => $roomAvailability,
-    ]);
+        return $this->render('room/availability.html.twig', [
+            'roomAvailability' => $roomAvailability,
+        ]);
+    }
 }
-}
+

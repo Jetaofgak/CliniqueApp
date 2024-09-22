@@ -13,7 +13,7 @@ class Schedule
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'schedules')]
@@ -27,14 +27,14 @@ class Schedule
     private ?\DateTimeInterface $closeTime = null;
 
     #[ORM\Column(type: Types::JSON)]
-    private ?array $availableDays = null;
+    private array $availableDays = [];  // Initialize to an empty array
 
-    #[ORM\OneToMany(mappedBy: 'schedule', targetEntity: Reservation::class)]
+    #[ORM\OneToMany(mappedBy: 'schedule', targetEntity: Reservation::class, orphanRemoval: true)]
     private Collection $reservations;
 
     public function __construct()
     {
-        $this->availableDays = [];
+        $this->availableDays = [];  // Ensure it's initialized as an empty array
         $this->reservations = new ArrayCollection();
     }
 
@@ -78,22 +78,13 @@ class Schedule
 
     public function getAvailableDays(): array
     {
-        return $this->availableDays ?? [];
+        return $this->availableDays ?? [];  // Ensure it returns an array
     }
 
-    public function setAvailableDays(?array $availableDays): static
+    public function setAvailableDays(array $availableDays): static
     {
         $this->availableDays = $availableDays;
         return $this;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function ensureAvailableDaysInitialized(): void
-    {
-        if ($this->availableDays === null) {
-            $this->availableDays = [];
-        }
     }
 
     /**

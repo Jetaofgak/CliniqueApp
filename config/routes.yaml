@@ -27,7 +27,7 @@ room_edit:
     controller: App\Controller\RoomController::edit
 
 room_delete:
-    path: /room/{name}/delete
+    path: /room/{id}/delete
     controller: App\Controller\RoomController::delete
     methods: POST
 
@@ -99,11 +99,7 @@ two_factor_setup:
 admin_users:
     path: /admin/users
     controller: App\Controller\AdminController::listUsers
-<<<<<<< HEAD
     methods: [GET]
 room_availability:
     path: /room/availability
     controller: App\Controller\RoomController::availability
-=======
-    methods: [GET]
->>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87

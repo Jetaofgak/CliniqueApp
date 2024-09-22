@@ -1,19 +1,17 @@
 # config/services.yaml
+
 services:
     _defaults:
-        autowire: true
-        autoconfigure: true
+        autowire: true        # Automatically inject dependencies
+        autoconfigure: true   # Automatically register services as events or command handlers
 
+    # Register all services in the 'src/' directory, excluding certain paths
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    App\Controller\TwoFactorController:
-        arguments:
-            $qrCodeBuilder: '@Endroid\QrCode\Builder\BuilderInterface'
 
     # QR Code builder service definition
     Endroid\QrCode\Builder\BuilderInterface:
@@ -35,3 +33,12 @@ services:
     App\Security\TwoFactorAuthenticationFailureHandler:
         tags:
             - { name: 'monolog.logger', channel: 'security' }
+
+    # Explicitly register repositories if autowiring does not work
+    App\Repository\ReservationRepository:
+        arguments:
+            $registry: '@doctrine'
+
+    App\Repository\RoomRepository:
+        arguments:
+            $registry: '@doctrine'

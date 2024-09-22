@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Schedule;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\ReservationRepository;
 use DateTimeInterface;
 
 /**
@@ -12,23 +13,54 @@ use DateTimeInterface;
  */
 class ScheduleRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $reservationRepository;
+
+    public function __construct(ManagerRegistry $registry, ReservationRepository $reservationRepository)
     {
         parent::__construct($registry, Schedule::class);
+        $this->reservationRepository = $reservationRepository; // Inject the ReservationRepository
     }
-    public function findAvailableSchedules(DateTimeInterface $startTime, DateTimeInterface $endTime, array $days): array
-{
-    $qb = $this->createQueryBuilder('s')
-        ->innerJoin('s.room', 'r')
-        ->where('s.openTime <= :endTime')
-        ->andWhere('s.closeTime >= :startTime')
-        ->andWhere('s.availableDays IN (:days)')
-        ->setParameter('startTime', $startTime)
-        ->setParameter('endTime', $endTime)
-        ->setParameter('days', $days)
-        ->getQuery();
 
-    return $qb->getResult();
+    /**
+     * Finds available schedules based on time and days.
+     */
+    public function findAvailableSchedules(DateTimeInterface $startTime, DateTimeInterface $endTime, array $days): array
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->innerJoin('s.room', 'r')
+            ->where('s.openTime <= :endTime')
+            ->andWhere('s.closeTime >= :startTime')
+            ->andWhere('s.availableDays IN (:days)')
+            ->setParameter('startTime', $startTime)
+            ->setParameter('endTime', $endTime)
+            ->setParameter('days', $days)
+            ->getQuery();
+
+        return $qb->getResult();
+    }
+
+    /**
+     * Deletes all schedules associated with a room by room ID and cascades to delete reservations.
+     * 
+     * @param int $roomId
+     */
+    public function deleteByRoomId(int $roomId)
+    {
+        // Find all schedules associated with the room
+        $schedules = $this->findBy(['room' => $roomId]);
+
+        // Delete all related reservations for each schedule
+        foreach ($schedules as $schedule) {
+            $this->reservationRepository->deleteByScheduleId($schedule->getId());
+        }
+
+        // Delete the schedules themselves
+        $entityManager = $this->getEntityManager();
+        foreach ($schedules as $schedule) {
+            $entityManager->remove($schedule);
+        }
+        $entityManager->flush();
+    }
 }
 
     //    /**
@@ -55,4 +87,4 @@ class ScheduleRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-}
+

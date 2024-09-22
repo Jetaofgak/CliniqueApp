@@ -2,7 +2,7 @@
 // src/Controller/ReservationController.php
 
 namespace App\Controller;
-
+use App\Entity\Reservation;
 use App\Form\ReservationType;
 use App\Entity\Schedule;
 use App\Form\ReservationSearchType;
@@ -26,12 +26,7 @@ class ReservationController extends AbstractController
         
         $form = $this->createForm(ReservationSearchType::class);
         $form->handleRequest($request);
-<<<<<<< HEAD
     
-=======
-
-
->>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87
         $availableRooms = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -39,7 +34,6 @@ class ReservationController extends AbstractController
             $endTime = $data['endtime'];
     
             $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
-<<<<<<< HEAD
     
             // Check if no rooms are available
             if (empty($availableRooms)) {
@@ -53,13 +47,6 @@ class ReservationController extends AbstractController
             }
         }
     
-=======
-
-            $availableRooms = $roomRepository->findAvailableRooms($startTime, $endTime);
-        }
-
-
->>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87
         return $this->render('reservation/search.html.twig', [
             'form' => $form->createView(),
             'available_rooms' => $availableRooms,

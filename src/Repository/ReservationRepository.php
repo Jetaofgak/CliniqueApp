@@ -15,6 +15,30 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
+
+    /**
+     * Deletes all reservations associated with a given schedule ID.
+     * 
+     * @param int $scheduleId
+     */
+    public function deleteByScheduleId(int $scheduleId): void
+    {
+        $entityManager = $this->getEntityManager();
+        $reservations = $this->findBy(['schedule' => $scheduleId]);
+
+        foreach ($reservations as $reservation) {
+            $entityManager->remove($reservation);
+        }
+
+        $entityManager->flush();
+    }
+
+    /**
+     * Calculates the reservation rate for a room.
+     * 
+     * @param int $roomId
+     * @return float
+     */
     public function calculateReservationRate(int $roomId): float
     {
         $conn = $this->getEntityManager()->getConnection();

@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Two-Factor Authentication Setup</title>
-<<<<<<< HEAD
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,23 +60,5 @@
         </div>
         <p class="secret">Secret: {{ secret }}</p>
     </div>
-=======
-</head>
-<body>
-    <h1>Two-Factor Authentication Setup</h1>
-    <p>To secure your account, please set up Two-Factor Authentication (2FA). Scan the QR code below with your authenticator app to link it with your account.</p>
-
-    {% if qrCodeUrl %}
-        <div>
-            <img src="{{ qrCodeUrl }}" alt="QR Code">
-        </div>
-        <p>Secret: {{ secret }}</p>
-    {% else %}
-        <p>Unable to generate QR code.</p>
-        <p>Debug information:</p>
-        <p>qrCodeUrl: {{ qrCodeUrl|default('undefined') }}</p>
-        <p>secret: {{ secret|default('undefined') }}</p>
-    {% endif %}
->>>>>>> 8810f3e44a0c958fae8f5f17bfdbf9db7a3c5e87
 </body>
 </html>
